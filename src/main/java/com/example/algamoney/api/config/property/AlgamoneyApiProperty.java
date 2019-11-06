@@ -11,11 +11,9 @@ public class AlgamoneyApiProperty {
 		return originPermitida;
 	}
 
-
 	public void setOriginPermitida(String originPermitida) {
 		this.originPermitida = originPermitida;
 	}
-
 
 	private final Seguranca seguranca = new Seguranca();
 	
