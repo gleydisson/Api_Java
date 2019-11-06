@@ -21,7 +21,6 @@ public class AlgamoneyApiProperty {
 		return seguranca;
 	}
 
-
 	public static class Seguranca {
 	
 		private boolean enableHttps;
