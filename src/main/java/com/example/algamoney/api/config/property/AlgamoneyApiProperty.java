@@ -20,7 +20,7 @@ public class AlgamoneyApiProperty {
 	public Seguranca getSeguranca() {
 		return seguranca;
 	}
-
+  
 	public static class Seguranca {
 	
 		private boolean enableHttps;
