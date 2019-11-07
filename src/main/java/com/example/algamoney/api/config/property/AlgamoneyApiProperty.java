@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AlgamoneyApiProperty {
 
 	private String originPermitida = "localhost:8000";
-	
+	 
 	public String getOriginPermitida() {
 		return originPermitida;
 	}
