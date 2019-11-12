@@ -16,13 +16,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
 
+	// Essa classe serve apenas para facilitar o desenvolvimento no Angular. Em producao sera OAuth Sempre
+	// Tenmos que mudar para producao o arquivo spring.profiles.active=oauth-security
 	@Autowired
 	private UserDetailsService userDetailsService;
-	//private OAuthSecurityConfig oauthSecurityConfig;
+
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		//auth.userDetailsService(userDetailsService).passwordEncoder(oauthSecurityConfig.passwordEncoder());
 		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
 	}
 	
