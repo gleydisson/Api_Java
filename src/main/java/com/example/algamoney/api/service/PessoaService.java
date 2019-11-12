@@ -14,10 +14,8 @@ public class PessoaService {
 	@Autowired
 	private PessoaRepository pessoaRepository;
 	
-	public Pessoa atualizar( Long codigo, Pessoa pessoa) {
-		
+	public Pessoa atualizar( Long codigo, Pessoa pessoa) {	
 		Pessoa pessoaSalva = buscarPessoaCodigo(codigo);
-
 			  return this.pessoaRepository.save(pessoaSalva);
 	}
 
