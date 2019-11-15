@@ -43,10 +43,10 @@ public class PessoaResource {
 	@Autowired
 	private PessoaService pessoaService;
 	
-	@GetMapping
+	/*@GetMapping
 	public List<Pessoa> listar(){
 		return pessoaRepository.findAll();
-	}
+	}*/
 	
 	@PostMapping
 	@PreAuthorize("hasAuthority('ROLE_CADASTRAR_PESSOA') and #oauth2.hasScope('write')")
