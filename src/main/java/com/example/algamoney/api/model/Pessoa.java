@@ -10,7 +10,9 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY) // Essa anotacao serve para nao retornar valores null nos objetos. Ex: Quando atualiza um lancamento
 @Entity
 @Table(name="pessoa")
 public class Pessoa {

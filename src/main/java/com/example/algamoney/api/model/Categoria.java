@@ -8,6 +8,9 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY) // Essa anotacao serve para nao retornar valores null nos objetos. Ex: Quando atualiza um lancamento
 @Entity
 @Table(name="categoria")
 public class Categoria {
