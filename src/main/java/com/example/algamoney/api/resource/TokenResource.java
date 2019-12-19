@@ -4,6 +4,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +15,7 @@ import com.example.algamoney.api.config.property.AlgamoneyApiProperty;
 @RestController
 @RequestMapping("/tokens")
 public class TokenResource {
-
+	@Autowired
 	private AlgamoneyApiProperty algamoneyApiProperty;
 	
 	// Implementado Logout -- Removemos o Refresh Token do COOKIE
