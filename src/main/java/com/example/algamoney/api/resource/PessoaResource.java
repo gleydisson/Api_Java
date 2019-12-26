@@ -30,7 +30,7 @@ import com.example.algamoney.api.repository.PessoaRepository;
 import com.example.algamoney.api.service.PessoaService;
 
 @RestController
-@RequestMapping("/pessoa")
+@RequestMapping("/pessoas")
 
 public class PessoaResource {
 	

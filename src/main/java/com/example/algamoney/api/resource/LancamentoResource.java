@@ -40,7 +40,7 @@ import com.example.algamoney.api.service.exception.PessoaInexistenteOuInativaExc
 import antlr.debug.Event;
 
 @RestController
-@RequestMapping("/lancamento")
+@RequestMapping("/lancamentos")
 
 public class LancamentoResource {
 
