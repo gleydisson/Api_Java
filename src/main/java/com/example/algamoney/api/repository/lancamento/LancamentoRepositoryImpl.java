@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 
 import com.example.algamoney.api.dto.LancamentoEstatisticaCategoria;
 import com.example.algamoney.api.dto.LancamentoEstatisticaDia;
+import com.example.algamoney.api.dto.LancamentoEstatisticaPessoa;
 import com.example.algamoney.api.model.Lancamento;
 import com.example.algamoney.api.model.Lancamento_;
 import com.example.algamoney.api.repository.filter.LancamentoFilter;
@@ -28,6 +29,34 @@ public class LancamentoRepositoryImpl implements LancamentoRepositoryQuery {
  
 		@PersistenceContext
 		private EntityManager manager;
+		
+		// Metodo para buscar lancamentos por Pessoa para o relatorio
+				@Override
+				public List<LancamentoEstatisticaPessoa> porPessoa(LocalDate inicio, LocalDate fim ) {
+				CriteriaBuilder criteriaBuilder = manager.getCriteriaBuilder();
+				
+				CriteriaQuery<LancamentoEstatisticaPessoa> criteriaQuery = criteriaBuilder.createQuery(LancamentoEstatisticaPessoa.class);
+				// Busca informacoes da entidade Lancamento por dia. Uso o Root do Criteria para fazer isso.
+				Root<Lancamento> root = criteriaQuery.from(Lancamento.class);
+				
+				// Esse metodo constroi o objeto
+				criteriaQuery.select(criteriaBuilder.construct(LancamentoEstatisticaPessoa.class, 
+						root.get(Lancamento_.tipo),
+						root.get(Lancamento_.pessoa),
+						criteriaBuilder.sum(root.get(Lancamento_.valor))));
+				
+
+				criteriaQuery.where(
+						criteriaBuilder.greaterThanOrEqualTo(root.get(Lancamento_.DATA_VENCIMENTO), inicio),
+						criteriaBuilder.lessThanOrEqualTo(root.get(Lancamento_.DATA_VENCIMENTO), fim));
+				criteriaQuery.groupBy(root.get(Lancamento_.tipo),
+									root.get(Lancamento_.pessoa));
+				
+				TypedQuery<LancamentoEstatisticaPessoa> typedQuery = manager.createQuery(criteriaQuery);
+				
+				
+				return typedQuery.getResultList();
+				}
 		
 		// Metodo para buscar lancamentos por dia
 		@Override
