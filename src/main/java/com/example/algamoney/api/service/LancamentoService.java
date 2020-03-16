@@ -11,6 +11,8 @@ import java.util.Optional;
 import javax.print.DocFlavor.INPUT_STREAM;
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,14 +20,26 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.algamoney.api.dto.LancamentoEstatisticaPessoa;
+import com.example.algamoney.api.mail.Mailer;
 import com.example.algamoney.api.model.Lancamento;
 import com.example.algamoney.api.model.Pessoa;
+import com.example.algamoney.api.model.Usuario;
 import com.example.algamoney.api.repository.LancamentoRepository;
 import com.example.algamoney.api.repository.PessoaRepository;
+import com.example.algamoney.api.repository.UsuarioRepository;
 import com.example.algamoney.api.service.exception.PessoaInexistenteOuInativaException;
+
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
 @Service
 public class LancamentoService {
+	
+	private static final String DESTINATARIOS = "ROLE_PESQUISAR_LANCAMENTO";
+	
+	private static final Logger logger = LoggerFactory.getLogger(LancamentoService.class);
 
 	@Autowired
 	private PessoaRepository pessoaRepository;
@@ -33,21 +47,54 @@ public class LancamentoService {
 	@Autowired
 	private LancamentoRepository lancamentoRepository;
 	
-/*	public byte[] relatorioPorPessoa(LocalDate inicio, LocalDate fim) {
+	@Autowired
+	private UsuarioRepository usuarioRepository;
+	
+	@Autowired
+	private Mailer mailer;
+	
+	public byte[] relatorioPorPessoa(LocalDate inicio, LocalDate fim) throws Exception {
 		List<LancamentoEstatisticaPessoa> dados = lancamentoRepository.porPessoa(inicio, fim);
 		
 		Map<String, Object> parametros = new HashMap<>();
+		// Usando java_sql_data Date.valueof(inicio)
 		parametros.put("DT_INICIO", Date.valueOf(inicio));
-		parametros.put("DT_INICIO", Date.valueOf(fim));
+		parametros.put("DT_FIM", Date.valueOf(fim));
 		
 		InputStream inputStream = this.getClass().getResourceAsStream("/Reports/lancamentos-por-pessoa.jasper");
-		// Jaspersoft
+		 JasperPrint jasperPrint = JasperFillManager.fillReport(inputStream, parametros, new JRBeanCollectionDataSource(dados));
+		 
+		 return JasperExportManager.exportReportToPdf(jasperPrint);
 	}
-*/	
-	//@Scheduled(fixedDelay = 1000 * 5)
+	
+	// @Scheduled(fixedDelay = 1000 * 60 * 30)
 	@Scheduled(cron = "0 0 6 * * *")
 	public void avisarSobreLancamentosVencidos() {
-		System.out.println(">>>>>>>>>>>>>Metodo sendo executado...");
+	//	System.out.println(">>>>>>>>>>>>>Metodo sendo executado...");
+	if(logger.isDebugEnabled()) {
+		logger.debug("Preparendo envio de emails de aviso de lancamentos vencidos");
+	}	
+	List<Lancamento> vencidos = lancamentoRepository.findByDataVencimentoLessThanEqualAndDataPagamentoIsNull(LocalDate.now());
+	
+	if(vencidos.isEmpty()) {
+		logger.info("Sem lancamentos vencidos para aviso");
+		
+		return;
+	}
+	logger.info("Existem {} lancamentos vencidos.", vencidos.size());
+	
+	List<Usuario> destinatarios = usuarioRepository.findByPermissoesDescricao(DESTINATARIOS);
+	
+	if(destinatarios.isEmpty()) {
+		logger.warn("Existem lancamentos vencidos mas o sistema nao encontrou destinatarios.");
+		
+		return;
+	}
+	
+	mailer.avisarSobreLancamentosVencidos(vencidos, destinatarios);
+	
+	logger.info("Envio de e-mail de aviso concluido.");
+	
 	}
 	
 	public Lancamento salvar(@Valid Lancamento lancamento) {

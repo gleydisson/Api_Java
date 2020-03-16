@@ -1,15 +1,21 @@
 package com.example.algamoney.api.model;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY) // Essa anotacao serve para nao retornar valores null nos objetos. Ex: Quando atualiza um lancamento
@@ -24,12 +30,18 @@ public class Pessoa {
 	@NotNull
 	private Boolean ativo;
 	
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long codigo;
 	
 	@Embedded
 	private Endereco endereco;
+	
+	@JsonIgnoreProperties("pessoa")
+	@Valid
+	@OneToMany(mappedBy = "pessoa", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Contato> contatos;
 	
 	
 	public String getNome() {
@@ -57,6 +69,13 @@ public class Pessoa {
 		this.endereco = endereco;
 	}
 	
+	
+	public List<Contato> getContatos() {
+		return contatos;
+	}
+	public void setContatos(List<Contato> contatos) {
+		this.contatos = contatos;
+	}
 	@JsonIgnore
 	@Transient
 	public boolean isInativo() {
