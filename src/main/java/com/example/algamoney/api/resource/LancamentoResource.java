@@ -47,6 +47,7 @@ import com.example.algamoney.api.repository.filter.LancamentoFilter;
 import com.example.algamoney.api.repository.projection.ResumoLancamento;
 import com.example.algamoney.api.service.LancamentoService;
 import com.example.algamoney.api.service.exception.PessoaInexistenteOuInativaException;
+import com.example.algamoney.api.storage.S3;
 
 @RestController
 @RequestMapping("/lancamentos")
@@ -78,15 +79,16 @@ public class LancamentoResource {
 	@Autowired
 	private MessageSource messageSource;
 	
+	@Autowired
+	private S3 s3;
+	
 	@PostMapping("/anexo")
 	@PreAuthorize("hasAuthority('ROLE_CADASTRAR_LANCAMENTO') and #oauth2.hasScope('write')")
 	public String uploadAnexo(@RequestParam  MultipartFile anexo) throws IOException {
-		OutputStream out = new FileOutputStream(
-				"D:\\Programas\\" + anexo.getOriginalFilename());
-		out.write(anexo.getBytes());
-		out.close();
+		String nome = s3.salvarTemporariamente(anexo);
 		
-		return "ok";
+		
+		return nome;
 	}
 	
 	// Metodo usado para retornar os bytes do relatorio por pessoa
