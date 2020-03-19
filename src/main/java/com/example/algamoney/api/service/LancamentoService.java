@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.example.algamoney.api.dto.LancamentoEstatisticaPessoa;
 import com.example.algamoney.api.mail.Mailer;
@@ -28,6 +29,7 @@ import com.example.algamoney.api.repository.LancamentoRepository;
 import com.example.algamoney.api.repository.PessoaRepository;
 import com.example.algamoney.api.repository.UsuarioRepository;
 import com.example.algamoney.api.service.exception.PessoaInexistenteOuInativaException;
+import com.example.algamoney.api.storage.S3;
 
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -52,6 +54,9 @@ public class LancamentoService {
 	
 	@Autowired
 	private Mailer mailer;
+	
+	@Autowired
+	private S3 s3;
 	
 	public byte[] relatorioPorPessoa(LocalDate inicio, LocalDate fim) throws Exception {
 		List<LancamentoEstatisticaPessoa> dados = lancamentoRepository.porPessoa(inicio, fim);
@@ -102,14 +107,25 @@ public class LancamentoService {
 		if (!pessoa.isPresent() || pessoa.get().isInativo()) {
 		    throw new PessoaInexistenteOuInativaException();
 		}
+		
+		if (StringUtils.hasText(lancamento.getAnexo())) {
+			s3.salvar(lancamento.getAnexo());
+		}
+		
 		return lancamentoRepository.save(lancamento);
 	}
-	
 	
 		// Atualiza Lancamentos
 	public Lancamento atualizar(Long codigo, Lancamento lancamento) {
 		Lancamento lancamentoSalva = this.lancamentoRepository.findById(codigo)
 				.orElseThrow(() -> new EmptyResultDataAccessException(1));
+		
+		if(StringUtils.isEmpty(lancamento.getAnexo()) && StringUtils.hasText(lancamentoSalva.getAnexo())) {
+			s3.remover(lancamentoSalva.getAnexo());
+		} 
+		else if(StringUtils.hasText(lancamento.getAnexo()) && !lancamento.getAnexo().equals(lancamentoSalva.getAnexo())){
+			s3.substituir(lancamentoSalva.getAnexo(), lancamento.getAnexo());
+		}
 		
 		BeanUtils.copyProperties(lancamento, lancamentoSalva, "codigo");
 		

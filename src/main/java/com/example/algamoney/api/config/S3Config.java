@@ -1,5 +1,6 @@
 package com.example.algamoney.api.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,6 +20,7 @@ import com.example.algamoney.api.config.property.AlgamoneyApiProperty;
 @Configuration
 public class S3Config {
 	
+	@Autowired
 	private AlgamoneyApiProperty property;
 	
 	@Bean

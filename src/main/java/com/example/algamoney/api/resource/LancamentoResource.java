@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.algamoney.api.dto.Anexo;
 import com.example.algamoney.api.dto.LancamentoEstatisticaCategoria;
 import com.example.algamoney.api.dto.LancamentoEstatisticaDia;
 import com.example.algamoney.api.event.RecursoCriadoEvent;
@@ -84,11 +85,10 @@ public class LancamentoResource {
 	
 	@PostMapping("/anexo")
 	@PreAuthorize("hasAuthority('ROLE_CADASTRAR_LANCAMENTO') and #oauth2.hasScope('write')")
-	public String uploadAnexo(@RequestParam  MultipartFile anexo) throws IOException {
+	public Anexo uploadAnexo(@RequestParam  MultipartFile anexo) throws IOException {
 		String nome = s3.salvarTemporariamente(anexo);
 		
-		
-		return nome;
+		return new Anexo(nome, s3.configurarUrl(nome));
 	}
 	
 	// Metodo usado para retornar os bytes do relatorio por pessoa
